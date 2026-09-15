@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documento Exportado — OmniConvert Pro</title>
+    <style>
+        :root { --bg:#f1f5f9; --text:#1e293b; --card:#ffffff; }
+        body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); margin:0; padding:15px; min-height:100vh; }
+        .container { max-width:1200px; margin:0 auto; background:var(--card); padding:20px; border-radius:12px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); }
+        img,video,iframe { max-width:100%; height:auto; border-radius:8px; }
+        .table-responsive-wrapper { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; margin-bottom:1.5rem; border-radius:6px; box-shadow:0 0 0 1px #e2e8f0; }
+        table { width:100%; border-collapse:collapse; min-width:600px; }
+        pre { background:#f8fafc; padding:15px; border-radius:8px; overflow-x:auto; font-size:.9em; border:1px solid #e2e8f0; }
+        footer { text-align:center; margin-top:40px; padding-top:20px; color:#64748b; font-size:.875rem; border-top:1px solid #e2e8f0; }
+        @media(min-width:768px){ body{padding:40px;} .container{padding:50px;} table{min-width:100%;} }
+    </style>
+</head>
+<body>
+    <div class="container"><h1>Chatbot PDF Interactivo — Tutor Socrático con IA</h1>
+<p>Aplicación web que convierte <strong>cualquier PDF</strong> en un <strong>tutor educativo socrático</strong> capaz de guiar al estudiante para que descubra la respuesta por sí mismo, en lugar de dársela de inmediato.</p>
+<hr>
+<h2>¿Qué hace?</h2>
+<ul>
+<li>Carga uno o dos documentos PDF como base de conocimiento.</li>
+<li>Actúa como <strong>tutor socrático</strong> (matemáticas, ciencias y cualquier tema del documento).</li>
+<li>Explica, divide el razonamiento en pasos y hace preguntas guiadas.</li>
+<li>Respeta reglas estrictas: <strong>máximo 5 interacciones pedagógicas</strong>, rigor en la verificación de respuestas y cierre con la respuesta final.</li>
+<li>Permite <strong>descargar un chatbot autónomo</strong> (un único archivo HTML) que funciona por sí solo, con el mismo comportamiento del tutor.</li>
+</ul>
+<hr>
+<h2>Requisitos</h2>
+<ul>
+<li>Un navegador moderno (Chrome, Edge, Firefox, Safari).</li>
+<li>Conexión a internet (la IA se consulta vía <code>https://node.proyectodescartes.org/api/ia</code>; <strong>la clave de API vive en ese servidor</strong>, no necesitas configurar nada localmente).</li>
+<li>Uno o dos archivos <strong>PDF</strong> con el contenido que quieras usar como base.</li>
+</ul>
+<hr>
+<h2>Cómo usar la aplicación principal (<code>index.html</code>)</h2>
+<ol>
+<li><strong>Abrir</strong> <code>index.html</code> en el navegador.</li>
+<li><strong>Cargar el documento (obligatorio):</strong><ul>
+<li>Pulsa <strong>“Seleccionar PDF”</strong> y elige tu archivo.</li>
+<li>Opcional: añade un <strong>segundo PDF</strong> con “+ Segundo PDF (opcional)”.</li>
+<li>El estado cambiará a “<code>&lt;nombre&gt;.pdf</code> está listo” cuando termine de procesarse.</li>
+</ul>
+</li>
+<li><strong>Personalizar avatares (opcional):</strong><ul>
+<li>Sube una imagen para el <strong>avatar del Bot</strong> y/o del <strong>Usuario</strong>.</li>
+</ul>
+</li>
+<li><strong>Elegir el modelo</strong> en el selector (“openai”, “mistral”, “gemini-fast”, etc.).</li>
+<li><strong>Chatear:</strong><ul>
+<li>Escribe tu pregunta o pide al tutor que te ayude con un tema del documento.</li>
+<li>El tutor responderá con preguntas guiadas, no con la solución directa.</li>
+</ul>
+</li>
+<li><strong>Controles de la barra de herramientas:</strong><ul>
+<li>🔄 <strong>Nuevo Chat</strong>: borra la conversación y empieza de cero (reinicia también el contador de interacciones).</li>
+<li>👁 <strong>Ver PDF</strong>: muestra/oculta el visor del documento cargado.</li>
+<li>📥 <strong>HTML</strong> / 📥 <strong>PDF</strong>: descargan la conversación actual.</li>
+<li>🤖 <strong>Descargar Chatbot</strong>: genera un chatbot autónomo (ver abajo).</li>
+<li>🌓 <strong>Tema</strong>: alterna claro/oscuro.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>El tutor socrático (reglas que se aplican)</h2>
+<p>Estas reglas están escritas en el <em>system prompt</em> del tutor y <strong>también se refuerzan en el código</strong> para mayor control:</p>
+<ul>
+<li><strong>Objetivo:</strong> que el estudiante comprenda y formule la respuesta correcta por sí mismo.</li>
+<li><strong>Máximo 5 interacciones pedagógicas</strong> para resolver una consulta. Una interacción = una pregunta del tutor + una respuesta del estudiante.<ul>
+<li>Si el estudiante acierta antes, el tutor termina de inmediato.</li>
+<li>Si llega a la 5.ª sin acertar, el tutor entrega la respuesta final explicada.</li>
+<li><em>Control en código:</em> al contar 5 turnos del estudiante, la app obliga al modelo a dar la respuesta final sin hacer más preguntas.</li>
+</ul>
+</li>
+<li><strong>Rigor:</strong> en matemáticas el tutor verifica cálculos y fórmulas antes de validar; <strong>no felicita respuestas incorrectas</strong>.</li>
+<li><strong>Sin bucles:</strong> está prohibido preguntar “una verificación más”, “para confirmar” o “pregunta final” una vez alcanzada la respuesta o el límite.</li>
+<li><strong>Cierre:</strong> el método socrático es un medio, no el fin; si el estudiante ya tiene los elementos, el tutor sintetiza y finaliza.</li>
+</ul>
+<blockquote>
+<p>Si el tutor se alarga demasiado, usa <strong>Nuevo Chat</strong> para reiniciar la conversación manualmente en cualquier momento.</p>
+</blockquote>
+<hr>
+<h2>Descargar tu propio chatbot (<code>Descargar Chatbot</code>)</h2>
+<p>El botón <strong>🤖 Descargar Chatbot</strong> genera un archivo HTML independiente (por ejemplo <code>Chatbot_&lt;tu_pdf&gt;.html</code>) que <strong>contiene el documento, el tema, los avatares y el tutor socrático embebidos</strong>.</p>
+<p>Para usarlo:</p>
+<ol>
+<li>Abre el archivo HTML descargado en cualquier navegador.</li>
+<li>Chatea normalmente; el comportamiento es idéntico al de la app principal.</li>
+<li>Controles disponibles en el chatbot descargado:<ul>
+<li>🔄 <strong>Nuevo chat</strong>: reinicia la conversación manualmente.</li>
+<li>📥 <strong>Descargar HTML</strong> / 📥 <strong>Descargar Word</strong>: guardan la sesión.</li>
+<li>🌓 <strong>Tema</strong>: claro/oscuro.</li>
+<li><strong>Preguntas sugeridas</strong>: desplegable con preguntas iniciales propuestas.</li>
+</ul>
+</li>
+<li>El límite de 5 interacciones y el rigor del tutor también se aplican en este chatbot.</li>
+</ol>
+<blockquote>
+<p>El chatbot descargado necesita conexión a internet para consultar la IA (mismo servidor backend).</p>
+</blockquote>
+<hr>
+<h2>Solución de problemas</h2>
+<ul>
+<li><strong>“Por favor, carga un PDF primero”</strong>: selecciona un PDF antes de enviar mensajes.</li>
+<li><strong>El tutor no responde</strong>: revisa tu conexión; el error se muestra en el chat.</li>
+<li><strong>Respuestas fuera de tema</strong>: el tutor solo responde sobre el contenido del/los PDF o el tema del chatbot; si preguntas algo ajeno, responderá <code>[FUERA_DE_ALCANCE]</code>.</li>
+<li><strong>El tutor se repite o no cierra</strong>: usa <strong>Nuevo Chat</strong>; además, el límite de 5 interacciones se fuerza automáticamente.</li>
+</ul>
+<hr>
+<h2>Créditos</h2>
+<p>Diseñado por Juan Guillermo Rivera Berrío con tecnología Gemini y la IA agéntica Antigravity.</p>
+</div>
+    <footer><p>Exportado con OmniConvert Pro</p></footer>
+</body>
+</html>

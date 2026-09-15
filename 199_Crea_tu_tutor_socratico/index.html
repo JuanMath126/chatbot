@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot tutor socrático</title>
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+    </script>
+    <!-- MathJax para renderizar matemáticas -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            options: { processHtmlClass: "tex2jax_process", ignoreHtmlClass: "tex2jax_ignore" }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
+    <!-- Marked.js para interpretar Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- html2pdf para descargar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Estilos externos -->
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome para el ícono de llave -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chatbot tutor socrático</h1>
+        </header>
+
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <button id="new-chat-button">Nuevo Chat</button>
+                <button id="toggle-pdf-viewer-button" disabled>Ver PDF</button>
+            </div>
+            
+            <div class="toolbar-group">
+                <select id="model-selector" title="Seleccionar Modelo" class="btn">
+                    <option value="openai">openai</option>
+                    <option value="mistral">mistral</option>
+                    <option value="gemini-fast">gemini-fast</option>
+                    <option value="openai-fast">openai-fast</option>
+                    <option value="gemini-search">gemini-search</option>
+                    <option value="nova-fast">nova-fast</option>
+                    <option value="perplexity-fast">perplexity-fast</option>
+                    <option value="deepseek">deepseek</option>
+                </select>
+            </div>
+            
+            <div class="toolbar-group">
+                <button id="download-html-btn" class="btn" disabled>📥 HTML</button>
+                <button id="download-pdf-btn" class="btn" disabled>📥 PDF</button>
+                <button id="download-chatbot-btn" class="btn" disabled>🤖 Descargar Chatbot</button>
+                <button id="toggle-theme-button">🌓 Tema</button>
+            </div>
+        </div>
+
+        <div class="main-content-area">
+            <div class="chat-and-loader-column">
+                <section class="pdf-loader">
+                    <h2>1. Cargar Documento PDF</h2>
+                    <div class="file-input-wrapper">
+                        <label for="pdf-upload" class="custom-file-upload">Seleccionar PDF</label>
+                        <input type="file" id="pdf-upload" accept=".pdf">
+                        <span id="pdf-name">Ningún archivo seleccionado</span>
+                    </div>
+                    <div id="pdf-status"></div>
+                    <div id="pdf2-section" style="display:none; margin-top:10px; padding-top:10px; border-top:1px dashed var(--card-border-color);">
+                        <div class="file-input-wrapper">
+                            <label for="pdf2-upload" class="custom-file-upload" style="background-color:var(--secondary-color);">+ Segundo PDF (opcional)</label>
+                            <input type="file" id="pdf2-upload" accept=".pdf">
+                            <span id="pdf2-name">Ningún archivo seleccionado</span>
+                        </div>
+                        <div id="pdf2-status"></div>
+                    </div>
+                </section>
+
+                <section class="avatar-section">
+                    <h2>2. Personalizar Avatares</h2>
+                    <div class="avatar-row">
+                        <div class="file-input-wrapper">
+                            <label for="bot-avatar-upload" class="custom-file-upload">🤖 Avatar del Bot</label>
+                            <input type="file" id="bot-avatar-upload" accept="image/*">
+                            <div class="avatar-preview" id="bot-avatar-preview">
+                                <img id="bot-avatar-img" alt="" style="display:none;">
+                                <span id="bot-avatar-name">Ninguna imagen (por defecto)</span>
+                            </div>
+                        </div>
+                        <div class="file-input-wrapper">
+                            <label for="user-avatar-upload" class="custom-file-upload">🙂 Avatar del Usuario</label>
+                            <input type="file" id="user-avatar-upload" accept="image/*">
+                            <div class="avatar-preview" id="user-avatar-preview">
+                                <img id="user-avatar-img" alt="" style="display:none;">
+                                <span id="user-avatar-name">Ninguna imagen (por defecto)</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="chat-area">
+                    <h2>3. Chatea con el Documento</h2>
+                    <div id="chat-display" class="chat-display">
+                        <!-- Los mensajes del chat se añadirán aquí -->
+                    </div>
+                    <div class="question-input-area">
+                        <textarea id="question-input" rows="2" placeholder="Escribe tu pregunta aquí..." disabled></textarea>
+                        <button id="send-button" disabled>
+                            <span id="send-button-text">Enviar</span>
+                            <div class="loader" id="loading-spinner"></div>
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <div id="pdf-viewer-container" class="pdf-viewer-container">
+                <iframe id="pdf-iframe" title="Visor de PDF"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Diseñado por Juan Guillermo Rivera Berrío con tecnología Gemini 3.1 Pro y la IA agéntica Antigravity</p>
+    </footer>
+
+    <!-- Lógica Externa -->
+    <script src="script.js"></script>
+</body>
+</html>
